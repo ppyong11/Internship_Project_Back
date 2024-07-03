@@ -39,7 +39,7 @@ public class JwtTokenUtil implements Serializable {
 
     // extract any information from token with secret key
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token).getBody();
     }
 
     // check token expired

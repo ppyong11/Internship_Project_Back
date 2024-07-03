@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'jhcode.blog'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
@@ -43,4 +43,5 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    jvmArgs '-Xshare:off' // JVM 아규먼트 설정
 }
