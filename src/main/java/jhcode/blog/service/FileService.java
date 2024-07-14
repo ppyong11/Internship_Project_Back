@@ -49,9 +49,13 @@ public class FileService {
             String randomId = UUID.randomUUID().toString();
 
             // create save File name : ex) POST_boardID_randomID.확장자
-            String filePath =
-                    "POST_" + board.getId() + "_" + randomId.concat(fileName.substring(fileName.indexOf(".")));
+            String extension = "";
+            int lastIndex = fileName.lastIndexOf(".");
+            if (lastIndex != -1) {
+                extension = fileName.substring(lastIndex); // 확장자만 추출
+            }
 
+            String filePath = "POST_" + board.getId() + "_" + randomId + extension;
             // File.separator : OS에 따른 구분자
             String fileResourcePath = FOLDER_PATH + File.separator + filePath;
 

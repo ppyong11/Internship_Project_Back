@@ -2,6 +2,8 @@ package jhcode.blog.service;
 
 import jakarta.transaction.Transactional;
 import jhcode.blog.entity.Board;
+import jhcode.blog.exception.ForbiddenException;
+import jhcode.blog.exception.UnauthorizedException;
 import jhcode.blog.repository.BoardRepository;
 import jhcode.blog.entity.Comment;
 import jhcode.blog.repository.CommentRepository;
@@ -11,6 +13,7 @@ import jhcode.blog.common.exception.ResourceNotFoundException;
 import jhcode.blog.entity.Member;
 import jhcode.blog.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -54,10 +58,17 @@ public class CommentService {
         return ResCommentDto.fromEntity(saveComment);
     }
 
-    public ResCommentDto update(Long commentId, CommentDto commentDto) {
+    public ResCommentDto update(Long commentId, CommentDto commentDto, String currentUserId) {
         Comment comment = commentRepository.findByIdWithMemberAndBoard(commentId).orElseThrow(
                 () -> new ResourceNotFoundException("Comment", "Comment Id", String.valueOf(commentId))
         );
+        log.info("comment member: {}",comment.getMember().getEmail());
+        // 작성자와 현재 사용자가 같은지 확인
+        if (!comment.getMember().getEmail().equals(currentUserId)) {
+            log.info("userID: {}", currentUserId);
+            //댓글 작성자와 요청자가 다를 경우 사용자의 권한이 없다고 표시
+            throw new ForbiddenException("댓글 작성자와 삭제 요청자가 일치하지 않습니다.");
+        }
         comment.update(commentDto.getContent());
         return ResCommentDto.fromEntity(comment);
     }

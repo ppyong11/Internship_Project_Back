@@ -16,9 +16,11 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://13.125.231.208:3000"));
+        configuration.setAllowedOrigins(List.of("http://3.39.229.235:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "PATCH", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Optional: CORS preflight cache timeout in seconds
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

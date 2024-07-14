@@ -18,7 +18,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 public class Member extends BaseTimeEntity implements UserDetails {
-
     @Id @GeneratedValue
     @Column(name = "MEMBER_ID")
     private Long id;

@@ -17,14 +17,15 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import jhcode.blog.security.jwt.JwtAuthenticationFilter;
 
 @RestController
 @RequestMapping("/board")
 @RequiredArgsConstructor
 @Slf4j
 public class BoardController {
-
     private final BoardService boardService;
 
     // 페이징 목록
@@ -50,9 +51,21 @@ public class BoardController {
     @PostMapping("/write")
     public ResponseEntity<ResBoardWriteDto> write(
             @RequestBody BoardWriteDto boardDTO,
-            @AuthenticationPrincipal Member member) {
-        Thread currentThread = Thread.currentThread();
-        log.info("현재 실행 중인 스레드: " + currentThread.getName());
+            @AuthenticationPrincipal Member member,
+            @AuthenticationPrincipal UserDetails currentUser) {
+
+        String currentUserId = currentUser.getUsername();
+        if (currentUserId == null) {
+            // 사용자 인증 정보가 없는 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        else{
+            if(!currentUserId.equals(member.getEmail())){
+                log.info("loginEmail: {}, BodyEail: {}", currentUserId, member.getEmail());
+                log.warn("게시글 작성 요청자와 작성자가 일치하지 않습니다.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         ResBoardWriteDto saveBoardDTO = boardService.write(boardDTO, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(saveBoardDTO);
     }
@@ -67,15 +80,45 @@ public class BoardController {
     @PatchMapping("/{boardId}/update")
     public ResponseEntity<ResBoardDetailsDto> update(
             @PathVariable Long boardId,
-            @RequestBody BoardUpdateDto boardDTO) {
+            @RequestBody BoardUpdateDto boardDTO,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        String currentUserId = currentUser.getUsername();
+        if (currentUserId == null) {
+            // 사용자 인증 정보가 없는 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        else{
+            if(!currentUserId.equals(boardService.detail(boardId).getWriterName())){
+                log.error("게시글 수정 요청자와 작성자가 일치하지 않습니다. -中");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         ResBoardDetailsDto updateBoardDTO = boardService.update(boardId, boardDTO);
         return ResponseEntity.status(HttpStatus.OK).body(updateBoardDTO);
     }
 
     // 상세보기 -> 삭제
     @DeleteMapping("/{boardId}/delete")
-    public ResponseEntity<Long> delete(@PathVariable Long boardId) {
+    public ResponseEntity<Long> delete(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserDetails currentUser) {
+
+        String currentUserId = currentUser.getUsername();
+        log.info("userID: {}, reqID: {}", currentUserId, boardService.detail(boardId).getWriterName());
+        if (currentUserId == null) {
+            // 사용자 인증 정보가 없는 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        else{
+            if(!currentUserId.equals(boardService.detail(boardId).getWriterName())){
+                log.error("게시글 삭제 요청자와 작성자가 일치하지 않습니다. -中");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         boardService.delete(boardId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+    /*answer
+    @PostMapping("/parentSeq}/answer")*/
+
 }

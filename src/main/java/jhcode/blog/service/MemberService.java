@@ -1,5 +1,6 @@
 package jhcode.blog.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jhcode.blog.common.exception.MemberException;
 import jhcode.blog.common.exception.ResourceNotFoundException;
@@ -31,7 +32,6 @@ public class MemberService {
 
     private final PasswordEncoder encoder;
     private final MemberRepository memberRepository;
-
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
@@ -48,7 +48,6 @@ public class MemberService {
         // 패스워드 암호화
         String encodePwd = encoder.encode(registerDto.getPassword());
         registerDto.setPassword(encodePwd);
-
         Member saveMember = memberRepository.save(
                 MemberRegisterDto.ofEntity(registerDto));
 

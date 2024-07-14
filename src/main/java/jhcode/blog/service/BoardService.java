@@ -13,17 +13,21 @@ import jhcode.blog.common.exception.ResourceNotFoundException;
 import jhcode.blog.entity.Member;
 import jhcode.blog.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -78,9 +82,12 @@ public class BoardService {
 
     // 게시글 수정
     public ResBoardDetailsDto update(Long boardId, BoardUpdateDto boardDTO) {
-        Board updateBoard = boardRepository.findByIdWithMemberAndCommentsAndFiles(boardId).orElseThrow(
-                () -> new ResourceNotFoundException("Board", "Board Id", String.valueOf(boardId))
-        );
+        Optional<Board> optionalBoard = boardRepository.findByIdWithMemberAndCommentsAndFiles(boardId);
+        if (optionalBoard.isEmpty()) {
+            log.error("해당하는 글 번호가 없습니다.");
+            throw new AccessDeniedException("Board with id " + boardId + " not found");
+        }
+        Board updateBoard = optionalBoard.get();
         updateBoard.update(boardDTO.getTitle(), boardDTO.getContent());
         return ResBoardDetailsDto.fromEntity(updateBoard);
     }

@@ -4,12 +4,14 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * JWT 토큰의 유효성을 검사하고, 인증
@@ -26,7 +30,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
 
@@ -36,6 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        String requestURI= request.getRequestURI();
+        log.info("request uri: {}", requestURI);
         Thread currentThread = Thread.currentThread();
         log.info("현재 실행 중인 스레드: " + currentThread.getName());
 
@@ -45,48 +50,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authToken = null;
 
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
-            authToken = header.replace(TOKEN_PREFIX," ");
+            authToken = header.replace(TOKEN_PREFIX, "");
             try {
                 username = this.jwtTokenUtil.getUsernameFromToken(authToken);
+                log.info("요청자: " + username);
             } catch (IllegalArgumentException ex) {
-                log.info("fail get user id");
+                log.info("사용자 ID 획득 실패");
                 ex.printStackTrace();
             } catch (ExpiredJwtException ex) {
-                log.info("Token expired");
-                ex.printStackTrace();
+                log.info("토큰 만료");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token has expired");
+                response.getWriter().flush();
+                return;
             } catch (MalformedJwtException ex) {
-                log.info("Invalid JWT !!");
-                System.out.println();
+                log.info("유효하지 않은 토큰");
                 ex.printStackTrace();
             } catch (Exception e) {
-                log.info("Unable to get JWT Token !!");
-                e.getStackTrace();
+                log.info("토큰 획득 불가");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token not get");
+                response.getWriter().flush();
+                return;
             }
-
         } else {
-            log.info("JWT does not begin with Bearer !!");
+            log.info("사용자 인증 권한이 필요 없는 접근");
         }
-
         if ((username != null) && (SecurityContextHolder.getContext().getAuthentication() == null)) {
-            //log.info(SecurityContextHolder.getContext().getAuthentication().getName());
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             if (this.jwtTokenUtil.validateToken(authToken, userDetails)) {
-
-                // All things going well
-                // Authentication stuff
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                authenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 log.info("authenticated user " + username + ", setting security context");
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
             } else {
-                log.info("Invalid JWT Token !!");
+                log.info("유효하지 않은 토큰입니다");
             }
         } else {
-            log.info("Username is null or context is not null !!");
+            log.info("사용자가 없거나 사용자 인증 정보가 설정된 상태");
         }
         filterChain.doFilter(request, response);
     }
