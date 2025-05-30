@@ -17,5 +17,5 @@
 
 ## 📝 프로젝트 상세 내용 및 기여 
 - **노션 링크**  
-  https://www.notion.so/1e6516e994b381c88354ee06847fa0b1?source=copy_link
+  https://www.notion.so/203516e994b3804d8ef8c8cfed9f175b?source=copy_link
 
