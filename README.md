@@ -17,5 +17,5 @@
   <img width="575" alt="CommentPaging" src="https://github.com/jhcode33/react-spring-blog-backend/assets/125725072/658f15a5-4149-404d-942e-2509a564726b"><br>
 ## 📝 프로젝트 상세 내용 및 기능 추가 
 - **노션 링크**  
-  https://www.notion.so/203516e994b3804d8ef8c8cfed9f175b?source=copy_link
+  https://cooing-caraway-2f1.notion.site/1e6516e994b381c88354ee06847fa0b1?source=copy_link
 
