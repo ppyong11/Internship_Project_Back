@@ -9,12 +9,12 @@
     - 취약점 분석: Burp Suite
 ## 📌 주요 기능 UI 소개
 로그인한 회원만 블로그 기능을 이용할 수 있습니다.
-- **회원가입**<br>
-      <img width="575" alt="Join" src="https://github.com/jhcode33/react-spring-blog-backend/assets/125725072/4da4830c-4c29-4f0f-b025-df6b3b29cb84"><br>
+- **회원가입 및 로그인 기능**<br>
+      <img width="575" alt="image" src="https://github.com/user-attachments/assets/b5483be3-75ba-4fbb-a831-e4e437c155e7" /><br>
 
-- **게시글 및 댓글 작성**<br>
-    <img width="575" alt="Write" src="https://github.com/jhcode33/react-spring-blog-backend/assets/125725072/32f3b3bf-0018-4c90-b6c5-c3dc752ddf8b">
-  <img width="575" alt="CommentPaging" src="https://github.com/jhcode33/react-spring-blog-backend/assets/125725072/658f15a5-4149-404d-942e-2509a564726b"><br>
+- **게시글 및 댓글 작성과 파일 첨부 기능**<br>
+  <img width="575" alt="image" src="https://github.com/user-attachments/assets/257b33da-f883-4400-9c49-cc20f2d0996e" />
+
 ## 📝 프로젝트 상세 내용 및 기능 추가 
 - **노션 링크**  
   https://cooing-caraway-2f1.notion.site/1e6516e994b381c88354ee06847fa0b1?source=copy_link
