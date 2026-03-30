@@ -17,5 +17,4 @@
 
 ## 📝 프로젝트 상세 내용 및 기능 추가 
 - **노션 링크**  
-  https://www.notion.so/26a516e994b380389999cc3bf3cd4088?source=copy_link#28a516e994b38090bec2ca063ea0baef
-
+https://www.notion.so/32a516e994b381b29e59e042fa698ea3?source=copy_link
